@@ -1,0 +1,42 @@
+<%= form_with(model: customer, local: true) do |form| %>
+  <% if customer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(customer.errors.count, "error") %> prohibited this customer from being saved:</h2>
+
+      <ul>
+      <% customer.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :numero_cedula %>
+    <%= form.number_field :numero_cedula, id: :customer_numero_cedula %>
+  </div>
+
+  <div class="field">
+    <%= form.label :nombre %>
+    <%= form.text_area :nombre, id: :customer_nombre %>
+  </div>
+
+  <div class="field">
+    <%= form.label :telefono %>
+    <%= form.text_area :telefono, id: :customer_telefono %>
+  </div>
+
+  <div class="field">
+    <%= form.label :direccion %>
+    <%= form.text_area :direccion, id: :customer_direccion %>
+  </div>
+
+  <div class="field">
+    <%= form.label :correo %>
+    <%= form.text_area :correo, id: :customer_correo %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
