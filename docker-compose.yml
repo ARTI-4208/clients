@@ -1,28 +1,38 @@
-version: '3'
+version: '2'
 services:
-  db:
-    image: mysql
-    restart: always
+  customers-db:
+    image: postgres:9.5.3
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: customers
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: password
-    ports: 
-      - "3307:3306"
-  app:
-    build: .
-    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=customers
+      - POSTGRES_DB=customers_development
+    volumes_from:
+      - customers-data
+  customers-data:
+    image: postgres:9.5.3
     volumes:
-      - ".:/Customers"
-    ports:
-      - "3001:3000"
+      - /var/lib/postgresql
+    command: "true"
+  customers-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
     depends_on:
-      - db
-    links:
-      - db
+      - customers-db
     environment:
-      DB_USER: root
-      DB_NAME: customers
-      DB_PASSWORD: password
-      DB_HOST: db
+      - PASSENGER_APP_ENV=development
+    command: ["./wait-for-postgres.sh", "customers-db", "bin/rails", "db:migrate"]
+  customers:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    depends_on:
+      - customers-db
+      - customers-migrate
+    ports:
+      - "80:80"
+    environment:
+      - PASSENGER_APP_ENV=development
+      - RAILS_LOG_TO_STDOUT=true
+    volumes:
+      - .:/home/app/webapp
